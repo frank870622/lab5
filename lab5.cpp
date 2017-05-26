@@ -7,6 +7,7 @@ string int2str(int &i){
 	string r;
 	stringstream rr(r);
 	rr << i;
+	//cout << rr.str() << endl;
 	return rr.str();
 }
 class hugeint{
@@ -29,11 +30,13 @@ public:
 		l = num.size();
 		k = num;
 		for(int i=0;i<l;i++){
-		a[i] = num[l-i];
+		a[i] = (int)num[l-i-1] -48;
 		}
 	}
 	hugeint operator+(hugeint &other);
 	hugeint operator=(hugeint other);
+	hugeint operator-(hugeint &other);
+	void function(int);
 //private:
 	string k;
 	int l;
@@ -41,26 +44,55 @@ public:
 	void init();
 	void intarray(int);
 };
+void hugeint::function(int r){
+	init();
+	k = int2str(r);
+	l = k.size();
+        for(int i=0;i<l;i++){
+                a[i] = (int)k[l-i-1] -48;
+        }
+}
 void hugeint::init(){
 	for(int i=0;i<100;i++)	{
 		a[i] = 0;
 	}
 }
 hugeint hugeint::operator+(hugeint &other){
+	hugeint *temp;
+	temp  = new hugeint;
 	for(int i = 0;i <100;i++){
-		a[i] = a[i] + other.a[i];
+		temp->a[i] = a[i] + other.a[i];
 	}
 	for(int i=0;i<99;i++){
-		if(a[i] >= 10){
-		a[i+1] = a[i+1] + 1;
-		a[i] = a[i] -10;
+		if(temp->a[i] >= 10){
+		temp->a[i+1] = temp->a[i+1] + 1;
+		temp->a[i] = temp->a[i] -10;
 		}
+	}
+	return *temp;
+}
+hugeint hugeint::operator=(hugeint other){
+	for(int i=0;i<100;i++){
+	a[i] = other.a[i];
 	}
 	return *this;
 }
-hugeint hugeint::operator=(hugeint other){
-	return other;
-}	
+hugeint hugeint::operator-(hugeint &other){
+	hugeint *temp;
+	temp = new hugeint;
+	for(int i=0;i<100;i++){
+		temp->a[i] = a[i] - other.a[i];
+	}
+	for(int i=0;i<99;i++){
+		if(temp->a[i] < 0){
+			if(temp->a[i+1] > 0){
+				temp->a[i] += 10;
+				temp->a[i+1] -= 1;
+			}
+		}
+	}
+	return *temp;
+}
 ostream & operator<< (ostream &out,const hugeint &n){
 	int q=0;
 	for(int i=99;i>=0;i--){
@@ -72,22 +104,12 @@ ostream & operator<< (ostream &out,const hugeint &n){
 	for(int i=q;i>=0;i--){
 		out << n.a[i];	
 	}
-	out << endl;
 	return out;
 }
 istream & operator>> (istream &in, hugeint &n){
 	int s;
 	in >> s;
-	hugeint o(s);
-	for(int i=0;i<100;i++){
-		n.a[i] = o.a[i];	
-	}
-	n.l = o.l;
-	/*n.k = int2str(s);
-	n.l = n.k.size();
-        for(int i=0;i<n.l;i++){
-        	n.a[i] = (int)n.k[n.l-i-1] -48;
-        }*/
+	n.function(s);
 	return in;
 }
 int main(){
@@ -100,5 +122,7 @@ int main(){
 	result = x+y;
 	cout << x << "+" << y << "=" << result << endl;
 	
+	result = z - x;
+	cout << result << endl;	
 	return 0;
 }
