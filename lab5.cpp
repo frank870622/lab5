@@ -1,128 +1,128 @@
 #include <iostream>
-#include <string>
-#include <sstream>
+#include <algorithm>
 #include <cstdlib>
 using namespace std;
-string int2str(int &i){
-	string r;
-	stringstream rr(r);
-	rr << i;
-	//cout << rr.str() << endl;
-	return rr.str();
-}
-class hugeint{
-	friend ostream & operator<< (ostream &, const hugeint &);
-	friend istream & operator>> (istream &,  hugeint &);
-public:
-	hugeint(){
-		init();	
-	}
-	hugeint(int number){
-		init();
-		k = int2str(number);
-		l = k.size();
-		for(int i=0;i<l;i++){
-		a[i] = (int)k[l-i-1] -48;
-		}
-	}
-	hugeint(string num){
-		init();
-		l = num.size();
-		k = num;
-		for(int i=0;i<l;i++){
-		a[i] = (int)num[l-i-1] -48;
-		}
-	}
-	hugeint operator+(hugeint &other);
-	hugeint operator=(hugeint other);
-	hugeint operator-(hugeint &other);
-	void function(int);
-//private:
-	string k;
-	int l;
-	int a[100];
-	void init();
-	void intarray(int);
+class HugeInt;
+string add(string, string);
+string sub(string, string);
+istream& operator>> (istream&, HugeInt&);
+ostream& operator<< (ostream&, const HugeInt&);
+class HugeInt{
+	friend istream& operator>> (istream&, HugeInt&);
+	friend ostream& operator<< (ostream&, const HugeInt&);
+	public:
+		HugeInt(){}
+		HugeInt(int);
+		HugeInt(string);
+		string getNum();
+		void setNum(string);
+		
+		HugeInt operator+ (HugeInt);
+		HugeInt operator- (HugeInt);
+		const HugeInt& operator= (const HugeInt&);
+	private:
+	string num;
 };
-void hugeint::function(int r){
-	init();
-	k = int2str(r);
-	l = k.size();
-        for(int i=0;i<l;i++){
-                a[i] = (int)k[l-i-1] -48;
-        }
+
+HugeInt::HugeInt(int newnum){
+	string newstring = to_string(newnum);
+	reverse(newstring.begin(), newstring.end());
+	num = newstring;
+	}
+HugeInt::HugeInt(string newnum){
+	reverse(newnum.begin(), newnum.end());
+	num = newnum;
 }
-void hugeint::init(){
-	for(int i=0;i<100;i++)	{
-		a[i] = 0;
-	}
+string HugeInt::getNum(){
+	return num;
 }
-hugeint hugeint::operator+(hugeint &other){
-	hugeint *temp;
-	temp  = new hugeint;
-	for(int i = 0;i <100;i++){
-		temp->a[i] = a[i] + other.a[i];
-	}
-	for(int i=0;i<99;i++){
-		if(temp->a[i] >= 10){
-		temp->a[i+1] = temp->a[i+1] + 1;
-		temp->a[i] = temp->a[i] -10;
-		}
-	}
-	return *temp;
+void HugeInt::setNum(string inputnum){
+	num = inputnum;
 }
-hugeint hugeint::operator=(hugeint other){
-	for(int i=0;i<100;i++){
-	a[i] = other.a[i];
-	}
+HugeInt HugeInt::operator+ (HugeInt other){
+	HugeInt temp;
+	temp.setNum(add(getNum(), other.getNum()));
+	return temp;
+}
+HugeInt HugeInt::operator- (HugeInt other){
+	HugeInt temp;
+	temp.setNum(sub(getNum(), other.getNum()));
+	return temp;
+}
+const HugeInt& HugeInt::operator= (const HugeInt& other){
+	this->num = other.num;
 	return *this;
+
 }
-hugeint hugeint::operator-(hugeint &other){
-	hugeint *temp;
-	temp = new hugeint;
-	for(int i=0;i<100;i++){
-		temp->a[i] = a[i] - other.a[i];
+string add(string a, string b){
+	int length = (a.length() > b.length())?a.length():b.length();
+	string c = (a.length() > b.length())?a:b;
+	for (int i = 0; i < length; ++i){
+		if (i >= a.length() || i >= b.length())	break;
+		c[i] = a[i] + b[i] - 48;
 	}
-	for(int i=0;i<99;i++){
-		if(temp->a[i] < 0){
-			if(temp->a[i+1] > 0){
-				temp->a[i] += 10;
-				temp->a[i+1] -= 1;
-			}
+	for (int i = 0; i < length; ++i){
+		if (c[i] > 57){
+			c[i] = c[i] - 10;
+			if (i != length - 1)	c[i + 1] = c[i + 1] + 1;
+			else c = c + "1";
 		}
 	}
-	return *temp;
+	return c;
 }
-ostream & operator<< (ostream &out,const hugeint &n){
-	int q=0;
-	for(int i=99;i>=0;i--){
-		if(n.a[i] != 0){
-			q = i;
-			break;
+string sub(string a, string b){
+	int negative = (a.length() > b.length())?0:1;
+	if(negative == 1){
+		string temp = b;
+		b = a;
+		a = temp;
+	}
+	int length = (a.length() > b.length())?a.length():b.length();
+	string c = (a.length() > b.length())?a:b;
+	for (int i = 0; i < length; ++i){
+		if (i >= a.length() || i >= b.length())	break;
+		c[i] = a[i] - b[i] + 48;
+	}
+	for (int i = 0; i < length; ++i){
+		if (c[i] < 48){
+			c[i] = c[i] + 10;
+			if(i != length - 1)	c[i + 1] = c[i + 1] - 1;
+			else c = c + "-";
 		}
 	}
-	for(int i=q;i>=0;i--){
-		out << n.a[i];	
-	}
-	return out;
+	if(negative == 1) c = c + "-";
+	return c;
 }
-istream & operator>> (istream &in, hugeint &n){
-	int s;
-	in >> s;
-	n.function(s);
+
+istream& operator>> (istream &in, HugeInt &output){
+	string temp;
+	in >> temp;
+	reverse(temp.begin(), temp.end());
+	output.setNum(temp);
 	return in;
 }
+ostream& operator<< (ostream &out, const HugeInt &input){
+	string temp = input.num;
+	reverse(temp.begin(), temp.end());
+	out << temp;
+	return out;
+}
+
 int main(){
-	hugeint x;
-	hugeint y(28825252);
-	hugeint z("314159265358979323846");
-	hugeint result;
-	
+	HugeInt x;
+	HugeInt y(28825252);
+	HugeInt z("314159265358979323846");
+	HugeInt result;
+
 	cin >> x;
-	result = x+y;
+	result = x + y;
 	cout << x << "+" << y << "=" << result << endl;
-	
+
+
 	result = z - x;
-	cout << result << endl;	
+	cout << result << endl;
+
+
 	return 0;
 }
+
